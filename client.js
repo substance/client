@@ -72,6 +72,15 @@
     };
 
 
+    // Seed
+    // ==========================
+
+    this.seed = function(seedName, cb) {
+      this.request("GET", "/seed/"+seedName, null, function(err, res) {
+        cb(err, res);
+      });
+    };
+
     // Users API
     // ==========================
 
