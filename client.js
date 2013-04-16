@@ -245,7 +245,7 @@
     // ----------
 
     this.createDocument = function(id, cb) {
-      this.hub.request('POST', '/documents', {id: id}, function(err) {
+      this.request('POST', '/documents', {id: id}, function(err) {
         cb(err);
       });
     };
@@ -254,7 +254,7 @@
     // ----------
 
     this.getDocument = function(id, cb) {
-      this.hub.request('GET', '/documents/'+id, null, function(err, doc) {
+      this.request('GET', '/documents/'+id, null, function(err, doc) {
         cb(err, doc);
       });
     };
@@ -264,7 +264,7 @@
 
     // TODO: Currently the hub returns a hash for documents, should be a list!
     this.listDocuments = function (cb) {
-      this.hub.request('GET', '/documents', null, function(err, documents) {
+      this.request('GET', '/documents', null, function(err, documents) {
         cb(err, documents);
       });
     };
@@ -273,7 +273,7 @@
     // -------
 
     this.deleteDocument = function (id, cb) {
-      this.hub.request("DELETE", '/documents/' + id, null, function(err) {
+      this.request("DELETE", '/documents/' + id, null, function(err) {
         cb(err);
       });
     };
@@ -284,7 +284,7 @@
     this.documentCommits = function(id, head, stop, cb) {
       // Head defaults to tail on the server, we should make this explicit
       // Provide head to server!
-      this.hub.request("GET", '/documents/'+id+'/commits', {since: stop, head: head}, function(err, commits) {
+      this.request("GET", '/documents/'+id+'/commits', {since: stop, head: head}, function(err, commits) {
         cb(err, commits);
       });
     };
@@ -300,7 +300,7 @@
         refs: refs // make sure refs are updated on the server (for now master, tail is updated implicitly)
       };
 
-      this.hub.request("PUT", '/documents/'+id, data, function (err) {
+      this.request("PUT", '/documents/'+id, data, function (err) {
         return cb(err);
       });
     };
