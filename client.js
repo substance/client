@@ -75,10 +75,22 @@
     // Seed
     // ==========================
 
-    this.seed = function(seedName, cb) {
-      this.request("GET", "/seed/"+seedName, null, function(err, res) {
-        cb(err, res);
-      });
+    this.seed = function(seed_or_seedName, cb) {
+      if (Object.prototype.toString.call(seed_or_seedName) === '[object String]') {
+       var seedName = seed_or_seedName;
+       console.log("Seeding hub with", seedName, "...");
+        this.request("GET", "/seed/"+seedName, null, function(err, res) {
+          if(err) console.log("...failed", err);
+          else console.log("...done")
+          cb(err, res);
+        });
+      } else {
+        var seed = seed_or_seedName;
+        console.log("Seeding hub with", seed, "...");
+        this.request("POST", "/seed", seed, function(err, res) {
+          cb(err, res);
+        });
+      }
     };
 
     // Users API
