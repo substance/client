@@ -305,5 +305,20 @@
       });
     };
 
+    this.createBlob = function(docId, blobId, blobData, cb) {
+      var data = {
+        data: blobData
+      }
+      this.request("POST", '/documents/'+docId+'/blob/'+blobId, data, function (err) {
+        return cb(err);
+      });
+    };
+
+    this.getBlob = function(docId, blobId, cb) {
+      this.request("GET", '/documents/'+docId+'/blob/'+blobId, null, function(err, blobData) {
+        cb(err, blobData);
+      });
+    };
+
   };
 }).call(this);
