@@ -137,6 +137,94 @@
     };
 
 
+
+    // Document API
+    // ==========================
+
+
+    // Create a new document
+    // ----------
+
+    this.createDocument = function(id, cb) {
+      this.request('POST', '/documents', {id: id}, function(err) {
+        cb(err);
+      });
+    };
+
+    // Get document by id
+    // ----------
+
+    this.getDocument = function(id, cb) {
+      this.request('GET', '/documents/'+id, null, function(err, doc) {
+        cb(err, doc);
+      });
+    };
+
+    // List all allowed documents complete with metadata
+    // -------
+
+    // TODO: Currently the hub returns a hash for documents, should be a list!
+    this.listDocuments = function (cb) {
+      this.request('GET', '/documents', null, function(err, documents) {
+        cb(err, documents);
+      });
+    };
+
+    // Permanently deletes a document
+    // -------
+
+    this.deleteDocument = function (id, cb) {
+      this.request("DELETE", '/documents/' + id, null, function(err) {
+        cb(err);
+      });
+    };
+
+    // Retrieves a range of the document's commits
+    // -------
+
+    this.documentCommits = function(id, head, stop, cb) {
+      // Head defaults to tail on the server, we should make this explicit
+      // Provide head to server!
+      this.request("GET", '/documents/'+id+'/commits', {since: stop, head: head}, function(err, commits) {
+        cb(err, commits);
+      });
+    };
+
+    // Stores a sequence of commits for a given document id.
+    // -------
+
+    // TODO: update original API so they also take meta and refs
+    this.updateDocument = function(id, newCommits, meta, refs, cb) {
+      var data = {
+        commits: newCommits, // may be empty
+        meta: meta,
+        refs: refs // make sure refs are updated on the server (for now master, tail is updated implicitly)
+      };
+
+      this.request("PUT", '/documents/'+id, data, function (err) {
+        return cb(err);
+      });
+    };
+
+    // Create Blob on the server
+    // -------
+
+    this.createBlob = function(docId, blobId, blobData, cb) {
+      this.request("POST", '/documents/'+docId+'/blob/'+blobId, {data: blobData}, function (err) {
+        return cb(err);
+      });
+    };
+
+    // Get Blob from server
+    // -------
+
+    this.getBlob = function(docId, blobId, cb) {
+      this.request("GET", '/documents/'+docId+'/blob/'+blobId, null, function(err, blobData) {
+        cb(err, blobData);
+      });
+    };
+
+
     // Publications API
     // ==========================
 
@@ -236,93 +324,6 @@
       });
     };
 
-
-
-    // Document API
-    // ==========================
-
-
-    // Create a new document
-    // ----------
-
-    this.createDocument = function(id, cb) {
-      this.request('POST', '/documents', {id: id}, function(err) {
-        cb(err);
-      });
-    };
-
-    // Get document by id
-    // ----------
-
-    this.getDocument = function(id, cb) {
-      this.request('GET', '/documents/'+id, null, function(err, doc) {
-        cb(err, doc);
-      });
-    };
-
-    // List all allowed documents complete with metadata
-    // -------
-
-    // TODO: Currently the hub returns a hash for documents, should be a list!
-    this.listDocuments = function (cb) {
-      this.request('GET', '/documents', null, function(err, documents) {
-        cb(err, documents);
-      });
-    };
-
-    // Permanently deletes a document
-    // -------
-
-    this.deleteDocument = function (id, cb) {
-      this.request("DELETE", '/documents/' + id, null, function(err) {
-        cb(err);
-      });
-    };
-
-    // Retrieves a range of the document's commits
-    // -------
-
-    this.documentCommits = function(id, head, stop, cb) {
-      // Head defaults to tail on the server, we should make this explicit
-      // Provide head to server!
-      this.request("GET", '/documents/'+id+'/commits', {since: stop, head: head}, function(err, commits) {
-        cb(err, commits);
-      });
-    };
-
-    // Stores a sequence of commits for a given document id.
-    // -------
-
-    // TODO: update original API so they also take meta and refs
-    this.updateDocument = function(id, newCommits, meta, refs, cb) {
-      var data = {
-        commits: newCommits, // may be empty
-        meta: meta,
-        refs: refs // make sure refs are updated on the server (for now master, tail is updated implicitly)
-      };
-
-      this.request("PUT", '/documents/'+id, data, function (err) {
-        return cb(err);
-      });
-    };
-
-    // Create Blob on the server
-    // -------
-
-    this.createBlob = function(docId, blobId, blobData, cb) {
-      this.request("POST", '/documents/'+docId+'/blob/'+blobId, {data: blobData}, function (err) {
-        return cb(err);
-      });
-    };
-
-    // Get Blob from server
-    // -------
-
-    this.getBlob = function(docId, blobId, cb) {
-      this.request("GET", '/documents/'+docId+'/blob/'+blobId, null, function(err, blobData) {
-        cb(err, blobData);
-      });
-    };
 
   };
 }).call(this);
