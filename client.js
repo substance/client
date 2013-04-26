@@ -247,10 +247,10 @@
     };
 
 
-    // Load Publications for a document
+    // List Publications for a document
     // -------
 
-    this.loadPublications = function(document, cb) {
+    this.listPublications = function(document, cb) {
       this.request("GET", "/documents/"+document+"/publications", null, function(err, publications) {
         cb(err, publications);
       });
@@ -260,10 +260,10 @@
     // Networks API
     // ==========================
 
-    // Load all available networks
+    // Get all available networks
     // -------
 
-    this.loadNetworks = function(cb) {
+    this.listNetworks = function(cb) {
       this.request("GET", "/networks", null, function(err, networks) {
         cb(err, networks);
       });
@@ -297,10 +297,10 @@
     // ==========================
 
 
-    // Load collaborators for a document
+    // List collaborators for a document
     // -------
 
-    this.loadCollaborators = function(document, cb) {
+    this.listCollaborators = function(document, cb) {
       this.request("GET", "/documents/"+document+"/collaborators", null, function(err, res) {
         cb(err, res);
       });
