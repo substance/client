@@ -7,9 +7,22 @@
 (function() {
   if (!window.Substance) window.Substance = {};
 
+  // TODO: can't handle paths including a query string!
   function _generic_request(host, method, path, data, headers, cb, raw) {
+
+    // TODO: Move to util?
+    function toQueryString(obj) {
+      var str = [];
+      for(var p in obj)
+         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      return str.join("&");
+    }
+
     function getURL() {
       var url = host + path;
+      if (method.toUpperCase() === "GET" && data && Object.keys(data).length > 0) {
+        url += "?"+toQueryString(data);
+      }
       return url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
     }
 
@@ -209,20 +222,20 @@
     // Create Blob on the server
     // -------
 
-    this.createBlob = function(docId, blobId, blobData, cb) {
-      this.request("POST", '/documents/'+docId+'/blob/'+blobId, {data: blobData}, function (err) {
-        return cb(err);
-      });
-    };
+    // this.createBlob = function(docId, blobId, blobData, cb) {
+    //   this.request("POST", '/documents/'+docId+'/blob/'+blobId, {data: blobData}, function (err) {
+    //     return cb(err);
+    //   });
+    // };
 
-    // Get Blob from server
-    // -------
+    // // Get Blob from server
+    // // -------
 
-    this.getBlob = function(docId, blobId, cb) {
-      this.request("GET", '/documents/'+docId+'/blob/'+blobId, null, function(err, blobData) {
-        cb(err, blobData);
-      });
-    };
+    // this.getBlob = function(docId, blobId, cb) {
+    //   this.request("GET", '/documents/'+docId+'/blob/'+blobId, null, function(err, blobData) {
+    //     cb(err, blobData);
+    //   });
+    // };
 
 
     // Publications API
@@ -232,7 +245,7 @@
     // -------
 
     this.createPublication = function(document, network, cb) {
-      this.request("POST", "/documents/"+document+"/publications", {network: network}, function(err, res) {
+      this.request("POST", "/publications", {document: document, network: network}, function(err, res) {
         cb(err, res);
       });
     };
@@ -240,8 +253,8 @@
     // Delete publication from the server
     // -------
 
-    this.deletePublication = function(document, network, cb) {
-      this.request("DELETE", "/documents/"+document+"/publications/"+network, null, function(err, res) {
+    this.deletePublication = function(id, cb) {
+      this.request("DELETE", "/publications/"+id, null, function(err, res) {
         cb(err, res);
       });
     };
@@ -251,7 +264,7 @@
     // -------
 
     this.listPublications = function(document, cb) {
-      this.request("GET", "/documents/"+document+"/publications", null, function(err, publications) {
+      this.request("GET", "/publications", {document: document}, function(err, publications) {
         cb(err, publications);
       });
     };
@@ -278,7 +291,7 @@
     // -------
 
     this.createVersion = function(document, data, cb) {
-      this.request("POST", "/documents/"+document+"/versions", {data: JSON.stringify(data)}, function(err, res) {
+      this.request("POST", "/versions", {document: document, data: JSON.stringify(data)}, function(err, res) {
         cb(err, res);
       });
     };
@@ -287,21 +300,19 @@
     // -------
 
     this.unpublish = function(document, cb) {
-      this.request("DELETE", "/documents/"+document+"/versions", null, function(err) {
+      this.request("DELETE", "/versions", {document: document}, function(err) {
         cb(err);
       });
     };
 
-
     // Collaborators API
     // ==========================
-
 
     // List collaborators for a document
     // -------
 
     this.listCollaborators = function(document, cb) {
-      this.request("GET", "/documents/"+document+"/collaborators", null, function(err, res) {
+      this.request("GET", "/collaborators", {document: document}, function(err, res) {
         cb(err, res);
       });
     };
@@ -310,7 +321,7 @@
     // -------
 
     this.createCollaborator = function(document, collaborator, cb) {
-      this.request("POST", "/documents/"+document+"/collaborators", {collaborator: collaborator}, function(err, res) {
+      this.request("POST", "/collaborators", {collaborator: collaborator, document: document}, function(err, res) {
         cb(err, res);
       });
     };
@@ -318,12 +329,11 @@
     // Delete collaborator for a document
     // -------
 
-    this.deleteCollaborator = function(document, collaborator, cb) {
-      this.request("DELETE", "/documents/"+document+"/collaborators/"+collaborator, null, function(err, res) {
+    this.deleteCollaborator = function(collaborator, cb) {
+      this.request("DELETE", "/collaborators/"+collaborator, null, function(err, res) {
         cb(err, res);
       });
     };
-
 
   };
 }).call(this);
