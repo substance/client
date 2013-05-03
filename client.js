@@ -179,7 +179,14 @@
     // TODO: Currently the hub returns a hash for documents, should be a list!
     this.listDocuments = function (cb) {
       this.request('GET', '/documents', null, function(err, documents) {
-        cb(err, documents);
+        if(err) return cb(err);
+        // preliminary: insert documents for which the user is registered as collaborator
+        // TODO: this will be addressed finally with the 'HubStore'-refactor
+        that.request("GET", '/collaborations', {}, function (err, collaborations) {
+          if(err) return cb(err);
+          documents = _.extend(documents, collaborations);
+          cb(err, documents);
+        });
       });
     };
 
