@@ -214,21 +214,26 @@
     // Create Blob on the server
     // -------
 
-    // this.createBlob = function(docId, blobId, blobData, cb) {
-    //   this.request("POST", '/documents/'+docId+'/blob/'+blobId, {data: blobData}, function (err) {
-    //     return cb(err);
-    //   });
-    // };
+    this.createBlob = function(docId, blobId, blobData, cb) {
+      this.request("POST", '/documents/'+docId+'/blobs/'+blobId, {data: blobData}, function (err) {
+        return cb(err);
+      });
+    };
 
-    // // Get Blob from server
-    // // -------
+    // Get Blob from server
+    // -------
 
-    // this.getBlob = function(docId, blobId, cb) {
-    //   this.request("GET", '/documents/'+docId+'/blob/'+blobId, null, function(err, blobData) {
-    //     cb(err, blobData);
-    //   });
-    // };
+    this.getBlob = function(docId, blobId, cb) {
+      this.request("GET", '/documents/'+docId+'/blobs/'+blobId, null, cb);
+    };
 
+    this.deleteBlob = function(docId, blobId, cb) {
+      this.request("DELETE", '/documents/'+docId+'/blobs/'+blobId, null, cb);
+    };
+
+    this.listBlobs = function(docId, cb) {
+      this.request("GET", '/documents/'+docId+'/blobs', null, cb);
+    };
 
     // Publications API
     // ==========================
