@@ -205,14 +205,8 @@
     // -------
 
     // TODO: update original API so they also take meta and refs
-    this.updateDocument = function(id, newCommits, meta, refs, cb) {
-      var data = {
-        commits: newCommits, // may be empty
-        meta: meta,
-        refs: refs // make sure refs are updated on the server (for now master, tail is updated implicitly)
-      };
-
-      this.request("PUT", '/documents/'+id, data, function (err) {
+    this.updateDocument = function(id, options, cb) {
+      this.request("PUT", '/documents/'+id, options, function (err) {
         return cb(err);
       });
     };
