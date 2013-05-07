@@ -159,8 +159,8 @@
     // ----------
 
     this.createDocument = function(id, cb) {
-      this.request('POST', '/documents', {id: id}, function(err) {
-        cb(err);
+      this.request('POST', '/documents', {id: id}, function(err, doc) {
+        cb(err, doc);
       });
     };
 
@@ -170,6 +170,12 @@
     this.getDocument = function(id, cb) {
       this.request('GET', '/documents/'+id, null, function(err, doc) {
         cb(err, doc);
+      });
+    };
+
+    this.getDocumentInfo = function(id, cb) {
+      this.request('GET', '/documents/'+id+'/info', null, function(err, info) {
+        cb(err, info);
       });
     };
 
