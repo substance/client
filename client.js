@@ -199,10 +199,10 @@
     // Retrieves a range of the document's commits
     // -------
 
-    this.documentCommits = function(id, head, stop, cb) {
+    this.documentCommits = function(id, last, since, cb) {
       // Head defaults to tail on the server, we should make this explicit
       // Provide head to server!
-      this.request("GET", '/documents/'+id+'/commits', {since: stop, head: head}, function(err, commits) {
+      this.request("GET", '/documents/'+id+'/commits', {since: since, last: last}, function(err, commits) {
         cb(err, commits);
       });
     };
