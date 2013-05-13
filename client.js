@@ -158,8 +158,8 @@
     // Create a new document
     // ----------
 
-    this.createDocument = function(id, cb) {
-      this.request('POST', '/documents', {id: id}, function(err, doc) {
+    this.createDocument = function(id, options, cb) {
+      this.request('POST', '/documents', _.extend(options, {id: id}), function(err, doc) {
         cb(err, doc);
       });
     };
