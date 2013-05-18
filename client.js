@@ -32,10 +32,13 @@
     xhr.open(method, getURL());
     xhr.onreadystatechange = function () {
       if (this.readyState == 4) {
+        // TODO: this needs some explanation
         if (this.status >= 200 && this.status < 300 || this.status === 304) {
           cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
         } else {
-          cb({request: this, error: this.status});
+          var err = JSON.parse(this.responseText);
+          if (err.stack) console.log(err.stack);
+          cb(err);
         }
       }
     };
