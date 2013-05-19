@@ -36,8 +36,15 @@
         if (this.status >= 200 && this.status < 300 || this.status === 304) {
           cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
         } else {
-          var err = JSON.parse(this.responseText);
-          if (err.stack) console.log(err.stack);
+          var err;
+          // try to interpret the response as json
+          try {
+            var err = JSON.parse(this.responseText);
+            if (err.stack) console.log(err.stack);
+          } catch (err) {
+            // if not possible fall back to string based errors
+            err = this.responseText;
+          }
           cb(err);
         }
       }
