@@ -36,16 +36,15 @@ function _generic_request(host, method, path, data, headers, cb, raw) {
       if (this.status >= 200 && this.status < 300 || this.status === 304) {
         cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
       } else {
-        var err;
         // try to interpret the response as json
         try {
           var err = JSON.parse(this.responseText);
           if (err.stack) console.log(err.stack);
+          cb(err)
         } catch (err) {
           // if not possible fall back to string based errors
-          err = this.responseText;
+          cb(this.responseText);
         }
-        cb(err);
       }
     }
   };
@@ -223,6 +222,26 @@ var Client = function(options) {
     });
   };
 
+  // Seed
+  // ==========================
+
+  this.seed = function(seed, cb) {
+    if (_.isString(seed)) {
+      var seedName = seed;
+      console.log("Seeding hub with", seedName, "...");
+      this.request("GET", "/seed/"+seedName, null, function(err, res) {
+        if(err) console.log("...failed", err);
+        else console.log("...done")
+        cb(err, res);
+      });
+    } else {
+      console.log("Seeding hub with object", seed, "...");
+      this.request("POST", "/seed", seed, function(err, res) {
+        cb(err, res);
+      });
+    }
+  };
+
   // Store API
   // =========
   // using a dedicated scope for the store
@@ -248,28 +267,6 @@ var Client_private = function(self, options) {
 }
 
 Client.Store = function(client) {
-
-  // Seed
-  // ==========================
-
-  this.seed = function(seed_or_seedName, cb) {
-    if (Object.prototype.toString.call(seed_or_seedName) === '[object String]') {
-     var seedName = seed_or_seedName;
-     console.log("Seeding hub with", seedName, "...");
-      client.request("GET", "/seed/"+seedName, null, function(err, res) {
-        if(err) console.log("...failed", err);
-        else console.log("...done")
-        cb(err, res);
-      });
-    } else {
-      var seed = seed_or_seedName;
-      console.log("Seeding hub with object", seed, "...");
-      client.request("POST", "/seed", seed, function(err, res) {
-        cb(err, res);
-      });
-
-    }
-  };
 
   this.create = function(id, options, cb) {
     client.request('POST', '/documents', _.extend(options, {id: id}), function(err, doc) {
