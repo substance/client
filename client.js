@@ -7,79 +7,25 @@
 
 if (!window.Substance) window.Substance = {};
 
-// TODO: can't handle paths including a query string!
-function _generic_request(host, method, path, data, headers, cb, raw) {
-
-  // TODO: Move to util?
-  function toQueryString(obj) {
-    var str = [];
-    for(var p in obj)
-       str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-    return str.join("&");
-  }
-
-  function getURL() {
-    var url = host + path;
-    if (method.toUpperCase() === "GET" && data && Object.keys(data).length > 0) {
-      url += "?"+toQueryString(data);
-    }
-    return url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
-  }
-
-  var xhr = new XMLHttpRequest();
-  if (!raw) {xhr.dataType = "json";}
-
-  xhr.open(method, getURL());
-  xhr.onreadystatechange = function () {
-    if (this.readyState == 4) {
-      // TODO: this needs some explanation
-      if (this.status >= 200 && this.status < 300 || this.status === 304) {
-        cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
-      } else {
-        // try to interpret the response as json
-        try {
-          var err = JSON.parse(this.responseText);
-          if (err.stack) console.log(err.stack);
-          cb(err)
-        } catch (err) {
-          // if not possible fall back to string based errors
-          cb(this.responseText);
-        }
-      }
-    }
-  };
-
-  // xhr.setRequestHeader('Accept','application/vnd.github.raw');
-  // xhr.setRequestHeader('Content-Type','application/json');
-
-  //HACK: because DELETE doesnt accept application/json content type
-  if (method.toUpperCase() !== 'DELETE') {
-    headers['Content-Type'] = "application/json";
-  }
-
-  _.each(headers, function(value, key) {
-    xhr.setRequestHeader(key, value);
-  });
-
-  data ? xhr.send(JSON.stringify(data)) : xhr.send();
-}
-
-
 // Substance.Client Interface
 // -------
 
 var Client = function(options) {
-  var that = this;
 
-  if (options.token) this.token = options.token;
+  this.options = options;
+  this.store = this.__store__();
 
-  var private = new Client_private(this, options);
+};
+
+Client.__prototype__ = function() {
+
+  var private = new Client.__private__();
 
   // Helpers
   // =======
 
   this.request = function(method, path, data, cb, raw) {
-    return private._request(method, path, data, private.headers(), cb, raw);
+    return private.request.call(this, method, path, data, private.headers.call(this), cb, raw);
   };
 
   // Users API
@@ -92,25 +38,25 @@ var Client = function(options) {
     var self = this;
 
     var data = {
-      "client_id": options.client_id,
-      "client_secret": options.client_secret
+      "client_id": this.options.client_id,
+      "client_secret": this.options.client_secret
     };
 
     var headers = {
       'Authorization': 'Basic ' + Base64.encode(username + ':' + password)
     };
 
-    private._request("POST", "/authorizations", data, headers, function(err, data) {
+    private.request.call(this, "POST", "/authorizations", data, headers, function(err, data) {
       if (err) return cb(err);
       self.token = data.token;
       cb(null, data);
     });
   };
 
-  // Create new publication on the server
+  // Create new user on the server
   // -------
 
-  this.create = function(user, cb) {
+  this.createUser = function(user, cb) {
     var data = {
       "username": user.username,
       "email": user.email,
@@ -242,29 +188,88 @@ var Client = function(options) {
     }
   };
 
-  // Store API
-  // =========
-  // using a dedicated scope for the store
+  this.__store__ = function() { return new Client.Store(this); };
 
-  this.store = new Client.Store(this);
 };
 
-var Client_private = function(self, options) {
+Client.__private__ = function() {
 
-  this.headers = function() {
+  var private = this;
+
+  private.headers = function() {
     var headers = {};
     // Adds authorization token if available
-    if (self.token) {
-      headers["Authorization"] = "token " + self.token;
+    if (this.options.token) {
+      headers["Authorization"] = "token " + this.options.token;
     }
     return headers;
   }
 
-  this._request = function(method, path, data, headers, cb, raw) {
-    return _generic_request(options.hub_api, method, path, data, headers, cb, raw);
+  private.request = function(method, path, data, headers, cb, raw) {
+    return private.generic_request(this.options.hub_api, method, path, data, headers, cb, raw);
   }
 
+  private.generic_request = function(host, method, path, data, headers, cb, raw) {
+
+    // TODO: Move to util?
+    function toQueryString(obj) {
+      var str = [];
+      for(var p in obj)
+         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      return str.join("&");
+    }
+
+    function getURL() {
+      var url = host + path;
+      if (method.toUpperCase() === "GET" && data && Object.keys(data).length > 0) {
+        url += "?"+toQueryString(data);
+      }
+      return url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
+    }
+
+    var xhr = new XMLHttpRequest();
+    if (!raw) {xhr.dataType = "json";}
+
+    xhr.open(method, getURL());
+    xhr.onreadystatechange = function () {
+      if (this.readyState == 4) {
+        // TODO: this needs some explanation
+        if (this.status >= 200 && this.status < 300 || this.status === 304) {
+          cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
+        } else {
+          // try to interpret the response as json
+          try {
+            var err = JSON.parse(this.responseText);
+            if (err.stack) console.log(err.stack);
+            cb(err)
+          } catch (err) {
+            // if not possible fall back to string based errors
+            cb(this.responseText);
+          }
+        }
+      }
+    };
+
+    // xhr.setRequestHeader('Accept','application/vnd.github.raw');
+    // xhr.setRequestHeader('Content-Type','application/json');
+
+    //HACK: because DELETE doesnt accept application/json content type
+    if (method.toUpperCase() !== 'DELETE') {
+      headers['Content-Type'] = "application/json";
+    }
+
+    _.each(headers, function(value, key) {
+      xhr.setRequestHeader(key, value);
+    });
+
+    data ? xhr.send(JSON.stringify(data)) : xhr.send();
+  }
+
+
 }
+
+// Store API
+// =========
 
 Client.Store = function(client) {
 
@@ -346,6 +351,7 @@ Client.Store.Blobs = function(client) {
 
 };
 
+Client.prototype = new Client.__prototype__();
 
 window.Substance.Client = Client;
 
