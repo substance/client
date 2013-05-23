@@ -185,6 +185,10 @@ Client.__prototype__ = function() {
 Client.Store = function(client) {
 
   this.create = function(id, options, cb) {
+    if (arguments.length == 2 && _.isFunction(options)) {
+      cb = options;
+      options = {};
+    }
     client.request('POST', '/documents', _.extend(options, {id: id}), cb);
   };
 
@@ -199,8 +203,11 @@ Client.Store = function(client) {
   this.exists = function(id, cb) {
     this.list(function(err, data) {
       if (err) return cb(err);
-      if (data && data.indexOf(id)>=0) cb(null, true);
-      else cb(null, false);
+      if (!data) return false;
+      _.each(data, function(doc) {
+        if(doc.id === id) return cb(null, true);
+      });
+      cb(null, false);
     });
   }
 
