@@ -11,7 +11,6 @@
 var Client = function(options) {
 
   this.options = options;
-  this.store = this.__store__();
 
 };
 
@@ -166,8 +165,89 @@ Client.__prototype__ = function() {
     }
   };
 
+  // Store
+  // =========================
+
+  // factory for the store facette
   this.__store__ = function() { return new Client.Store(this); };
 
+  // Get a user scoped store
+  // --------
+  // Note: In the default implementation this is not necessary as the user is identified via token on the server side.
+  // Other client implementations (e.g., Test client) provide scoped stores.
+  this.getUserStore = function(username) {
+    return new Client.Store(this);
+  }
+
+};
+
+// Store API
+// =========
+
+Client.Store = function(client) {
+
+  this.create = function(id, options, cb) {
+    client.request('POST', '/documents', _.extend(options, {id: id}), cb);
+  };
+
+  this.get = function(id, cb) {
+    client.request('GET', '/documents/'+id, null, cb);
+  };
+
+  this.getInfo = function(id, cb) {
+    client.request('GET', '/documents/'+id+'/info', null, cb);
+  };
+
+  this.exists = function(id, cb) {
+    this.list(function(err, data) {
+      if (err) return cb(err);
+      if (data && data.indexOf(id)>=0) cb(null, true);
+      else cb(null, false);
+    });
+  }
+
+  this.list = function (cb) {
+    client.request('GET', '/documents', null, cb);
+  };
+
+  this.delete = function (id, cb) {
+    client.request("DELETE", '/documents/' + id, null, cb);
+  };
+
+  this.commits = function(id, options, cb) {
+    client.request("GET", '/documents/'+id+'/commits', options, cb);
+  };
+
+  this.update = function(id, options, cb) {
+    client.request("PUT", '/documents/'+id, options, cb);
+  };
+
+  // Blob API
+  // -------
+
+  this.createBlob = function(docId, blobId, blobData, cb) {
+    client.request("POST", '/documents/'+docId+'/blobs/'+blobId, {data: blobData}, cb);
+  };
+
+  this.hasBlob = function(docId, blobId, cb) {
+    this.listBlobs(docId, function(err, blobIds) {
+      if(err) return cb(err);
+      var hasBlob = blobIds.indexOf(blobId)>= 0;
+      cb(null, hasBlob);
+    });
+  }
+
+  this.getBlob = function(docId, blobId, cb) {
+    client.request("GET", '/documents/'+docId+'/blobs/'+blobId, null, cb);
+  };
+
+  this.deleteBlob = function(docId, blobId, cb) {
+    client.request("DELETE", '/documents/'+docId+'/blobs/'+blobId, null, cb);
+  };
+
+  this.listBlobs = function(docId, cb) {
+    client.request("GET", '/documents/'+docId+'/blobs', null, cb);
+  };
 };
 
 Client.__private__ = function() {
@@ -245,89 +325,6 @@ Client.__private__ = function() {
 
 
 }
-
-// Store API
-// =========
-
-Client.Store = function(client) {
-
-  this.create = function(id, options, cb) {
-    client.request('POST', '/documents', _.extend(options, {id: id}), function(err, doc) {
-      cb(err, doc);
-    });
-  };
-
-  this.get = function(id, cb) {
-    client.request('GET', '/documents/'+id, null, function(err, doc) {
-      cb(err, doc);
-    });
-  };
-
-  this.getInfo = function(id, cb) {
-    client.request('GET', '/documents/'+id+'/info', null, function(err, info) {
-      cb(err, info);
-    });
-  };
-
-  // TODO: Currently the hub returns a hash for documents, should be a list!
-  this.list = function (cb) {
-    client.request('GET', '/documents', null, cb);
-  };
-
-  this.delete = function (id, cb) {
-    client.request("DELETE", '/documents/' + id, null, function(err) {
-      cb(err);
-    });
-  };
-
-  // Retrieves a range of the document's commits
-  // -------
-  //
-  this.commits = function(id, options, cb) {
-    // Head defaults to tail on the server, we should make this explicit
-    // Provide head to server!
-    client.request("GET", '/documents/'+id+'/commits', options, function(err, commits) {
-      cb(err, commits);
-    });
-  };
-
-  this.update = function(id, options, cb) {
-    client.request("PUT", '/documents/'+id, options, function (err) {
-      return cb(err);
-    });
-  };
-
-  this.blobs = new Client.Store.Blobs(client);
-
-};
-
-Client.Store.Blobs = function(client) {
-
-  // Create Blob on the server
-  // -------
-
-  this.create = function(docId, blobId, blobData, cb) {
-    client.request("POST", '/documents/'+docId+'/blobs/'+blobId, {data: blobData}, function (err) {
-      return cb(err);
-    });
-  };
-
-  // Get Blob from server
-  // -------
-
-  this.get = function(docId, blobId, cb) {
-    client.request("GET", '/documents/'+docId+'/blobs/'+blobId, null, cb);
-  };
-
-  this.delete = function(docId, blobId, cb) {
-    client.request("DELETE", '/documents/'+docId+'/blobs/'+blobId, null, cb);
-  };
-
-  this.list = function(docId, cb) {
-    client.request("GET", '/documents/'+docId+'/blobs', null, cb);
-  };
-
-};
 
 Client.prototype = new Client.__prototype__();
 
