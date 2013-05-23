@@ -306,6 +306,10 @@ Client.__private__ = function() {
             }
           }
         } catch (err) {
+          // Note: this case is somewhat difficult to handle
+          // It is not possible to rethrow as this call is invoked by xhr
+          // The best idea is to invoke the callback again with error
+          // relying on proper error handling.
           cb(err);
         }
       }
