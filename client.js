@@ -291,19 +291,24 @@ Client.__private__ = function() {
     xhr.open(method, getURL());
     xhr.onreadystatechange = function () {
       if (this.readyState == 4) {
-        // TODO: this needs some explanation
-        if (this.status >= 200 && this.status < 300 || this.status === 304) {
-          cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
-        } else {
-          // try to interpret the response as json
-          try {
-            var err = JSON.parse(this.responseText);
-            if (err.stack) console.log(err.stack);
-            cb(err)
-          } catch (err) {
-            // if not possible fall back to string based errors
-            cb(this.responseText);
+        // try-catching, as callbacks might throw too
+        try {
+          // TODO: this needs some explanation
+          if (this.status >= 200 && this.status < 300 || this.status === 304) {
+            cb(null, raw ? this.responseText : this.responseText ? JSON.parse(this.responseText) : true);
+          } else {
+            // try to interpret the response as json
+            try {
+              var err = JSON.parse(this.responseText);
+              if (err.stack) console.log(err.stack);
+              cb(err)
+            } catch (err) {
+              // if not possible fall back to string based errors
+              cb(this.responseText);
+            }
           }
+        } catch (err) {
+          cb(err);
         }
       }
     };
