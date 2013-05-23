@@ -3,9 +3,7 @@
 // Substance.Client is freely distributable under the MIT license.
 // For all details and documentation:
 // http://github.com/substance/client
-(function() {
-
-if (!window.Substance) window.Substance = {};
+(function(root) {
 
 // Substance.Client Interface
 // -------
@@ -66,9 +64,7 @@ Client.__prototype__ = function() {
       "client_secret": options.client_secret
     };
 
-    this.request("POST", "/register", data, function(err, res) {
-      cb(err, res);
-    });
+    this.request("POST", "/register", data, cb);
   };
 
   // Publications API
@@ -78,18 +74,14 @@ Client.__prototype__ = function() {
   // -------
 
   this.createPublication = function(document, network, cb) {
-    this.request("POST", "/publications", {document: document, network: network}, function(err, res) {
-      cb(err, res);
-    });
+    this.request("POST", "/publications", {document: document, network: network}, cb);
   };
 
   // Delete publication from the server
   // -------
 
   this.deletePublication = function(id, cb) {
-    this.request("DELETE", "/publications/"+id, null, function(err, res) {
-      cb(err, res);
-    });
+    this.request("DELETE", "/publications/"+id, null, cb);
   };
 
 
@@ -97,9 +89,7 @@ Client.__prototype__ = function() {
   // -------
 
   this.listPublications = function(document, cb) {
-    this.request("GET", "/publications", {document: document}, function(err, publications) {
-      cb(err, publications);
-    });
+    this.request("GET", "/publications", {document: document}, cb);
   };
 
 
@@ -110,9 +100,7 @@ Client.__prototype__ = function() {
   // -------
 
   this.listNetworks = function(cb) {
-    this.request("GET", "/networks", null, function(err, networks) {
-      cb(err, networks);
-    });
+    this.request("GET", "/networks", null, cb);
   };
 
 
@@ -124,18 +112,14 @@ Client.__prototype__ = function() {
   // -------
 
   this.createVersion = function(document, data, cb) {
-    this.request("POST", "/versions", {document: document, data: JSON.stringify(data)}, function(err, res) {
-      cb(err, res);
-    });
+    this.request("POST", "/versions", {document: document, data: JSON.stringify(data)}, cb);
   };
 
   // Delete all versions for a document
   // -------
 
   this.unpublish = function(document, cb) {
-    this.request("DELETE", "/versions", {document: document}, function(err) {
-      cb(err);
-    });
+    this.request("DELETE", "/versions", {document: document}, cb);
   };
 
   // Collaborators API
@@ -145,27 +129,21 @@ Client.__prototype__ = function() {
   // -------
 
   this.listCollaborators = function(document, cb) {
-    this.request("GET", "/collaborators", {document: document}, function(err, res) {
-      cb(err, res);
-    });
+    this.request("GET", "/collaborators", {document: document}, cb);
   };
 
   // Create collaborator for document
   // -------
 
   this.createCollaborator = function(document, collaborator, cb) {
-    this.request("POST", "/collaborators", {collaborator: collaborator, document: document}, function(err, res) {
-      cb(err, res);
-    });
+    this.request("POST", "/collaborators", {collaborator: collaborator, document: document}, cb);
   };
 
   // Delete collaborator for a document
   // -------
 
   this.deleteCollaborator = function(collaborator, cb) {
-    this.request("DELETE", "/collaborators/"+collaborator, null, function(err, res) {
-      cb(err, res);
-    });
+    this.request("DELETE", "/collaborators/"+collaborator, null, cb);
   };
 
   // Seed
@@ -353,6 +331,7 @@ Client.Store.Blobs = function(client) {
 
 Client.prototype = new Client.__prototype__();
 
-window.Substance.Client = Client;
+if (!root.Substance) root.Substance = {};
+root.Substance.Client = Client;
 
-}).call(this);
+})(this);
