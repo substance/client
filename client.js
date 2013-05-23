@@ -159,9 +159,7 @@ Client.__prototype__ = function() {
       });
     } else {
       console.log("Seeding hub with object", seed, "...");
-      this.request("POST", "/seed", seed, function(err, res) {
-        cb(err, res);
-      });
+      private.request.call(this, "POST", "/seed", seed, {}, cb);
     }
   };
 
