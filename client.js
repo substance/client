@@ -258,15 +258,17 @@ Client.Store = function(client) {
   // --------
 
   this.getChanges = function(trackId, last, since, cb) {
-    var options = {
-      last: last,
-      since: since
-    };
+    var options = {};
+    if (last) options.last = last;
+    if (since) options.since = since;
     client.request("GET", '/changes/'+trackId, options, cb);
   };
 
   this.getLastChange = function(trackId, cb) {
-    client.request("GET", '/changes/'+trackId+"/last", null, cb);
+    client.request("GET", '/changes/'+trackId+"/last", null, function(err, data) {
+      if (err) return cb(err);
+      cb(null, data ? data.last : null);
+    });
   };
 
   this.applyCommand = function(trackId, command, cb) {
