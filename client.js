@@ -253,6 +253,26 @@ Client.Store = function(client) {
   this.listBlobs = function(docId, cb) {
     client.request("GET", '/documents/'+docId+'/blobs', null, cb);
   };
+
+  // Management API
+  // --------
+
+  this.getChanges = function(trackId, last, since, cb) {
+    var options = {
+      last: last,
+      since: since
+    };
+    client.request("GET", '/changes/'+trackId, options, cb);
+  };
+
+  this.getLastChange = function(trackId, cb) {
+    client.request("GET", '/changes/'+trackId+"/last", null, cb);
+  };
+
+  this.applyCommand = function(trackId, command, cb) {
+    client.request("PUT", '/changes/'+trackId, {command: command}, cb);
+  };
+
 };
 
 Client.__private__ = function() {
