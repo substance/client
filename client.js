@@ -152,11 +152,7 @@ Client.__prototype__ = function() {
     if (_.isString(seed)) {
       var seedName = seed;
       console.log("Seeding hub with", seedName, "...");
-      this.request("GET", "/seed/"+seedName, null, function(err, res) {
-        if(err) console.log("...failed", err);
-        else console.log("...done")
-        cb(err, res);
-      });
+      private.request.call(this, "POST", "/seed/"+seedName, {}, {}, cb);
     } else {
       console.log("Seeding hub with object", seed, "...");
       private.request.call(this, "POST", "/seed", seed, {}, cb);
