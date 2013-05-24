@@ -254,17 +254,15 @@ Client.Store = function(client) {
   // Management API
   // --------
 
-  this.getChanges = function(trackId, last, since, cb) {
-    var options = {};
-    if (last) options.last = last;
-    if (since) options.since = since;
-    client.request("GET", '/changes/'+trackId, options, cb);
+  this.getChanges = function(trackId, ids, cb) {
+    var query = { ids: JSON.stringify(ids) };
+    client.request("GET", '/changes/'+trackId, query, cb);
   };
 
-  this.getLastChange = function(trackId, cb) {
-    client.request("GET", '/changes/'+trackId+"/last", null, function(err, data) {
+  this.getIndex = function(trackId, cb) {
+    client.request("GET", '/changes/'+trackId+"/index", null, function(err, data) {
       if (err) return cb(err);
-      cb(null, data ? data.last : null);
+      cb(null, data ? data : []);
     });
   };
 
