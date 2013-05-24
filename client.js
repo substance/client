@@ -216,6 +216,7 @@ Client.Store = function(client) {
   };
 
   this.commits = function(id, options, cb) {
+    if (options.commits) options.commits = JSON.stringify(options.commits);
     client.request("GET", '/documents/'+id+'/commits', options, cb);
   };
 
