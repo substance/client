@@ -9,9 +9,7 @@
 // -------
 
 var Client = function(options) {
-
   this.options = options;
-
 };
 
 Client.__prototype__ = function() {
@@ -59,8 +57,8 @@ Client.__prototype__ = function() {
       "email": user.email,
       "name": user.name,
       "password": user.password,
-      "client_id": options.client_id,
-      "client_secret": options.client_secret
+      "client_id": this.options.client_id,
+      "client_secret": this.options.client_secret
     };
 
     this.request("POST", "/register", data, cb);
@@ -283,11 +281,11 @@ Client.__private__ = function() {
       headers["Authorization"] = "token " + this.options.token;
     }
     return headers;
-  }
+  };
 
   private.request = function(method, path, data, headers, cb, raw) {
     return private.generic_request(this.options.hub_api, method, path, data, headers, cb, raw);
-  }
+  };
 
   private.generic_request = function(host, method, path, data, headers, cb, raw) {
 
@@ -354,8 +352,7 @@ Client.__private__ = function() {
     data ? xhr.send(JSON.stringify(data)) : xhr.send();
   }
 
-
-}
+};
 
 Client.prototype = new Client.__prototype__();
 
