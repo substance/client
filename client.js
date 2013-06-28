@@ -71,14 +71,16 @@ Client.__prototype__ = function() {
   // -------
 
   this.createPublication = function(document, network, cb) {
-    this.request("POST", "/publications", {document: document, network: network}, cb);
+    cb(null);
+    // this.request("POST", "/publications", {document: document, network: network}, cb);
   };
 
   // Delete publication from the server
   // -------
 
   this.deletePublication = function(id, cb) {
-    this.request("DELETE", "/publications/"+id, null, cb);
+    cb(null);
+    // this.request("DELETE", "/publications/"+id, null, cb);
   };
 
 
@@ -353,7 +355,6 @@ Client.__private__ = function() {
 
     data ? xhr.send(JSON.stringify(data)) : xhr.send();
   }
-
 };
 
 Client.prototype = new Client.__prototype__();
