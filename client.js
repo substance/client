@@ -325,7 +325,7 @@ Client.__private__ = function() {
             try {
               var err = JSON.parse(this.responseText);
               if (err.stack) console.log(err.stack);
-              try { cb(err) } catch(err) {};
+              try { cb(err) } catch(err) {};
             } catch (err) {
               // if not possible fall back to string based errors
               cb(this.responseText);
