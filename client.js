@@ -133,14 +133,16 @@ Client.__prototype__ = function() {
   // -------
 
   this.createCollaborator = function(document, collaborator, cb) {
-    this.request("POST", "/collaborators", {collaborator: collaborator, document: document}, cb);
+    cb(null);
+    // this.request("POST", "/collaborators", {collaborator: collaborator, document: document}, cb);
   };
 
   // Delete collaborator for a document
   // -------
 
   this.deleteCollaborator = function(collaborator, cb) {
-    this.request("DELETE", "/collaborators/"+collaborator, null, cb);
+    cb(null);
+    // this.request("DELETE", "/collaborators/"+collaborator, null, cb);
   };
 
   // Seed
@@ -321,7 +323,7 @@ Client.__private__ = function() {
             try {
               var err = JSON.parse(this.responseText);
               if (err.stack) console.log(err.stack);
-              cb(err)
+              try { cb(err) } catch(err) {};
             } catch (err) {
               // if not possible fall back to string based errors
               cb(this.responseText);
