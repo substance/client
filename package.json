@@ -1,0 +1,23 @@
+{
+  "name": "substance-client",
+  "description": "Talks to a Substance Hub instance",
+  "keywords": ["substance", "client"],
+  "author": "Michael Aufreiter",
+  "contributors": ["Oliver Buchtala"],
+  "version": "0.1.0-alpha",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/substance/client.git"
+  },
+  "engines": {
+    "node": ">=0.8.x"
+  },
+  "dependencies": {
+    "underscore": "1.5.x",
+    "substance-util": "0.2.0-alpha",
+    "substance-test": "0.2.0-alpha"
+  },
+  "scripts": {
+    "test": "mocha -R spec tests/run.js"
+  }
+}
